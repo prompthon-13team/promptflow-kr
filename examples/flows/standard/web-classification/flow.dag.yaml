@@ -20,8 +20,6 @@ nodes:
     path: fetch_text_content_from_url.py
   inputs:
     url: ${inputs.url}
-- name: summarize_text_content
-  use_variants: true
 - name: prepare_examples
   type: python
   source:
@@ -29,20 +27,7 @@ nodes:
     path: prepare_examples.py
   inputs: {}
 - name: classify_with_llm
-  type: llm
-  source:
-    type: code
-    path: classify_with_llm.jinja2
-  inputs:
-    deployment_name: gpt-35-turbo
-    model: gpt-3.5-turbo
-    max_tokens: 128
-    temperature: 0.2
-    url: ${inputs.url}
-    text_content: ${summarize_text_content.output}
-    examples: ${prepare_examples.output}
-  connection: aoai_sweden
-  api: chat
+  use_variants: true
 - name: convert_to_dict
   type: python
   source:
@@ -51,7 +36,7 @@ nodes:
   inputs:
     input_str: ${classify_with_llm.output}
 node_variants:
-  summarize_text_content:
+  classify_with_llm:
     default_variant_id: variant_0
     variants:
       variant_0:
@@ -59,26 +44,30 @@ node_variants:
           type: llm
           source:
             type: code
-            path: summarize_text_content.jinja2
+            path: classify_with_llm.jinja2
           inputs:
             deployment_name: gpt-35-turbo
             model: gpt-3.5-turbo
             max_tokens: 128
             temperature: 0.2
-            text: ${fetch_text_content_from_url.output}
-          connection: aoai_sweden
+            url: ${inputs.url}
+            text_content: ${fetch_text_content_from_url.output}
+            examples: ${prepare_examples.output}
+          connection: AOAI_API
           api: chat
       variant_1:
         node:
           type: llm
           source:
             type: code
-            path: summarize_text_content__variant_1.jinja2
+            path: classify_with_llm_variant_1.jinja2
           inputs:
             deployment_name: gpt-35-turbo
             model: gpt-3.5-turbo
             max_tokens: 256
             temperature: 0.3
-            text: ${fetch_text_content_from_url.output}
-          connection: aoai_sweden
+            url: ${inputs.url}
+            text_content: ${fetch_text_content_from_url.output}
+            examples: ${prepare_examples.output}
+          connection: AOAI_API
           api: chat

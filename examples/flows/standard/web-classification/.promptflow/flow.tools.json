@@ -72,6 +72,27 @@
       },
       "source": "convert_to_dict.py",
       "function": "convert_to_dict"
+    },
+    "classify_with_llm_variant_1.jinja2": {
+      "type": "llm",
+      "inputs": {
+        "url": {
+          "type": [
+            "string"
+          ]
+        },
+        "examples": {
+          "type": [
+            "string"
+          ]
+        },
+        "text_content": {
+          "type": [
+            "string"
+          ]
+        }
+      },
+      "source": "classify_with_llm_variant_1.jinja2"
     }
   }
 }
