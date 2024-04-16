@@ -4,7 +4,8 @@ environment:
 inputs:
   question:
     type: string
-    default: 개인 신규가입과 법인 신규가입의 차이점에 대해 알려줘
+    default: ""
+    is_chat_input: true
 outputs:
   output:
     type: string

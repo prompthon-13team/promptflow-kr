@@ -12,20 +12,36 @@ inputs:
 outputs:
   answer:
     type: string
-    reference: ${chat.output}
+    reference: ${generate_answer.output}
     is_chat_output: true
 nodes:
-- name: chat
+- name: get_keyword_for_search
   type: llm
   source:
     type: code
-    path: chat.jinja2
+    path: get_keyword_for_search.jinja2
   inputs:
-    deployment_name: gpt-35-turbo-16k
-    model: gpt-3.5-turbo
-    max_tokens: 256
-    temperature: 0.7
-    chat_history: ${inputs.chat_history}
+    deployment_name: gpt-4-turbo
+    temperature: 0.3
     question: ${inputs.question}
+  connection: AOAI_KOREA
+  api: chat
+- name: search_log
+  type: python
+  source:
+    type: code
+    path: search_log.py
+  inputs:
+    search_keywords: ${get_keyword_for_search.output}
+- name: generate_answer
+  type: llm
+  source:
+    type: code
+    path: generate_answer.jinja2
+  inputs:
+    deployment_name: gpt-4-turbo
+    temperature: 0.1
+    question: ${inputs.question}
+    search_data: ${search_log.output}
   connection: AOAI_KOREA
   api: chat
