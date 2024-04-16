@@ -4,11 +4,11 @@ environment:
 inputs:
   question:
     type: string
-    default: 4월에 대해서 간략하게 요약해줘.
+    default: 청소년고객 일시정지와 성인고객 일시정지 차이점을 알려줘
 outputs:
   output:
     type: string
-    reference: ${summary_llm.output}
+    reference: ${generate_answer_0.output}
 nodes:
 - name: Embedding_Q
   type: python
@@ -16,7 +16,7 @@ nodes:
     type: package
     tool: promptflow.tools.embedding.embedding
   inputs:
-    connection: aoai_sweden
+    connection: AOAI API
     deployment_name: text-embedding-ada-002
     input: ${inputs.question}
 - name: wikipedia_ai_search
@@ -25,19 +25,12 @@ nodes:
     type: package
     tool: promptflow_vectordb.tool.vector_db_lookup.VectorDBLookup.search
   inputs:
-    connection: pt-ai-search
-    index_name: wikipedia-index
+    connection: Mobile-sus-search
+    index_name: mobile-sus-index
     text_field: ""
-    vector_field: content_vector
+    vector_field: Vector
     vector: ${Embedding_Q.output}
-- name: post_processing
-  type: python
-  source:
-    type: code
-    path: post_processing.py
-  inputs:
-    search_result: ${wikipedia_ai_search.output}
-- name: summary_llm
+- name: generate_answer_0
   type: llm
   source:
     type: code
@@ -47,6 +40,14 @@ nodes:
     response_format:
       type: text
     question: ${inputs.question}
-    search_results: ${post_processing.output}
-  connection: aoai_sweden
+    search_data: ${processing_answer.output}
+    temperature: 0.3
+  connection: AOAI API
   api: chat
+- name: processing_answer
+  type: python
+  source:
+    type: code
+    path: post_processing.py
+  inputs:
+    search_result: ${wikipedia_ai_search.output}
