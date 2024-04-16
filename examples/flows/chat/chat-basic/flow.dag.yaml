@@ -1,4 +1,6 @@
 $schema: https://azuremlschemas.azureedge.net/promptflow/latest/Flow.schema.json
+environment:
+  python_requirements_txt: requirements.txt
 inputs:
   chat_history:
     type: list
@@ -10,25 +12,46 @@ inputs:
 outputs:
   answer:
     type: string
-    reference: ${chat.output}
+    reference: ${generate_answer.output}
     is_chat_output: true
 nodes:
-- inputs:
-    # This is to easily switch between openai and azure openai.
-    # deployment_name is required by azure openai, model is required by openai.
-    deployment_name: gpt-35-turbo
-    model: gpt-3.5-turbo
-    max_tokens: "256"
-    temperature: "0.7"
-    chat_history: ${inputs.chat_history}
-    question: ${inputs.question}
-  name: chat
+- name: Embedding_Q
+  type: python
+  source:
+    type: package
+    tool: promptflow.tools.embedding.embedding
+  inputs:
+    connection: AOAI_KOREA
+    deployment_name: text-embedding-ada-002
+    input: ${inputs.question}
+- name: Ai_Search
+  type: python
+  source:
+    type: package
+    tool: promptflow_vectordb.tool.vector_db_lookup.VectorDBLookup.search
+  inputs:
+    connection: azureblob-index-13team-test2
+    index_name: mobile-sus-index
+    vector_field: Vector
+    vector: ${Embedding_Q.output}
+- name: post_processing
+  type: python
+  source:
+    type: code
+    path: post_processing.py
+  inputs:
+    search_result: ${Ai_Search.output}
+- name: generate_answer
   type: llm
   source:
     type: code
-    path: chat.jinja2
+    path: generate_answer.jinja2
+  inputs:
+    deployment_name: gpt-35-turbo-16k
+    temperature: 0.3
+    question: ${inputs.question}
+    response_format:
+      type: text
+    search_data: ${post_processing.output}
+  connection: AOAI_KOREA
   api: chat
-  connection: open_ai_connection
-node_variants: {}
-environment:
-    python_requirements_txt: requirements.txt
