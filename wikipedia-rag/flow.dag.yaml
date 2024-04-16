@@ -4,49 +4,39 @@ environment:
 inputs:
   question:
     type: string
-    default: 4월에 대해서 간략하게 요약해줘.
+    default: 개인 신규가입과 법인 신규가입의 차이점에 대해 알려줘
 outputs:
   output:
     type: string
-    reference: ${summary_llm.output}
+    reference: ${generate_answer_0.output}
 nodes:
-- name: Embedding_Q
-  type: python
-  source:
-    type: package
-    tool: promptflow.tools.embedding.embedding
-  inputs:
-    connection: aoai_sweden
-    deployment_name: text-embedding-ada-002
-    input: ${inputs.question}
-- name: wikipedia_ai_search
-  type: python
-  source:
-    type: package
-    tool: promptflow_vectordb.tool.vector_db_lookup.VectorDBLookup.search
-  inputs:
-    connection: pt-ai-search
-    index_name: wikipedia-index
-    text_field: ""
-    vector_field: content_vector
-    vector: ${Embedding_Q.output}
-- name: post_processing
-  type: python
-  source:
-    type: code
-    path: post_processing.py
-  inputs:
-    search_result: ${wikipedia_ai_search.output}
-- name: summary_llm
+- name: get_keyword_for_search
   type: llm
   source:
     type: code
-    path: summary_llm.jinja2
+    path: get_keyword_for_search.jinja2
   inputs:
-    deployment_name: gpt-35-turbo-16k
-    response_format:
-      type: text
+    deployment_name: gpt-4-turbo
     question: ${inputs.question}
-    search_results: ${post_processing.output}
-  connection: aoai_sweden
+    temperature: 0.3
+  connection: AOAI_KOREA
+  api: chat
+- name: search_data
+  type: python
+  source:
+    type: code
+    path: search_data.py
+  inputs:
+    search_keywords: ${get_keyword_for_search.output}
+- name: generate_answer_0
+  type: llm
+  source:
+    type: code
+    path: generate_answer_0.jinja2
+  inputs:
+    deployment_name: gpt-4-turbo
+    temperature: 0.1
+    search_data: ${search_data.output}
+    question: ${inputs.question}
+  connection: AOAI_KOREA
   api: chat

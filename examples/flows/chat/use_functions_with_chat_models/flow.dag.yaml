@@ -1,6 +1,6 @@
 $schema: https://azuremlschemas.azureedge.net/promptflow/latest/Flow.schema.json
 environment:
-    python_requirements_txt: requirements.txt
+  python_requirements_txt: requirements.txt
 inputs:
   chat_history:
     type: list
@@ -46,22 +46,25 @@ nodes:
     path: use_functions_with_chat_models.jinja2
   inputs:
     deployment_name: gpt-35-turbo
-    temperature: '0.7'
-    top_p: '1.0'
-    stop: ''
-    max_tokens: '256'
-    presence_penalty: '0'
-    frequency_penalty: '0'
-    logit_bias: ''
-    functions: '[{"name":"get_current_weather","description":"Get the current weather
-      in a given location","parameters":{"type":"object","properties":{"location":{"type":"string","description":"The
-      city and state, e.g. San Francisco, CA"},"unit":{"type":"string","enum":["celsius","fahrenheit"]}},"required":["location"]}},{"name":"get_n_day_weather_forecast","description":"Get
-      an N-day weather forecast","parameters":{"type":"object","properties":{"location":{"type":"string","description":"The
-      city and state, e.g. San Francisco, CA"},"format":{"type":"string","enum":["celsius","fahrenheit"],"description":"The
-      temperature unit to use. Infer this from the users location."},"num_days":{"type":"integer","description":"The
-      number of days to forecast"}},"required":["location","format","num_days"]}}]'
+    temperature: 0.7
+    top_p: 1
+    max_tokens: 256
+    presence_penalty: 0
+    frequency_penalty: 0
+    functions: '[{"name":"get_current_weather","description":"Get the current
+      weather in a given
+      location","parameters":{"type":"object","properties":{"location":{"type":"string","description":"The
+      city and state, e.g. San Francisco,
+      CA"},"unit":{"type":"string","enum":["celsius","fahrenheit"]}},"required":["location"]}},{"name":"get_n_day_weather_forecast","description":"Get
+      an N-day weather
+      forecast","parameters":{"type":"object","properties":{"location":{"type":"string","description":"The
+      city and state, e.g. San Francisco,
+      CA"},"format":{"type":"string","enum":["celsius","fahrenheit"],"description":"The
+      temperature unit to use. Infer this from the users
+      location."},"num_days":{"type":"integer","description":"The number of days
+      to forecast"}},"required":["location","format","num_days"]}}]'
     function_call: auto
     question: ${inputs.question}
     chat_history: ${inputs.chat_history}
-  connection: open_ai_connection
+  connection: AOAI_KOREA
   api: chat

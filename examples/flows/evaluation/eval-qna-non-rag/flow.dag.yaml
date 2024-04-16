@@ -1,4 +1,6 @@
 $schema: https://azuremlschemas.azureedge.net/promptflow/latest/Flow.schema.json
+environment:
+  python_requirements_txt: requirements.txt
 inputs:
   question:
     type: string
@@ -217,7 +219,6 @@ nodes:
     tool: promptflow.tools.embedding.embedding
   inputs:
     connection: open_ai_connection
-    deployment_name: text-embedding-ada-002
     input: ${inputs.ground_truth}
   activate:
     when: ${validate_input.output.ada_similarity}
@@ -230,7 +231,6 @@ nodes:
     tool: promptflow.tools.embedding.embedding
   inputs:
     connection: open_ai_connection
-    deployment_name: text-embedding-ada-002
     input: ${inputs.answer}
   activate:
     when: ${validate_input.output.ada_similarity}
@@ -260,6 +260,3 @@ nodes:
     question: ${inputs.question}
     selected_metrics: ${select_metrics.output}
   use_variants: false
-node_variants: {}
-environment:
-  python_requirements_txt: requirements.txt

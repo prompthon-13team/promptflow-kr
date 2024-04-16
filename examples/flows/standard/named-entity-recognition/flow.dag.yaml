@@ -1,4 +1,6 @@
 $schema: https://azuremlschemas.azureedge.net/promptflow/latest/Flow.schema.json
+environment:
+  python_requirements_txt: requirements.txt
 inputs:
   entity_type:
     type: string
@@ -18,8 +20,6 @@ nodes:
     type: code
     path: NER_LLM.jinja2
   inputs:
-    # This is to easily switch between openai and azure openai.
-    # deployment_name is required by azure openai, model is required by openai.
     deployment_name: gpt-35-turbo
     model: gpt-3.5-turbo
     max_tokens: 64
@@ -34,5 +34,3 @@ nodes:
     path: cleansing.py
   inputs:
     entities_str: ${NER_LLM.output}
-environment:
-  python_requirements_txt: requirements.txt

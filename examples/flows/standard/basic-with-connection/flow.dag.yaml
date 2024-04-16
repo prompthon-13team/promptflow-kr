@@ -1,4 +1,6 @@
 $schema: https://azuremlschemas.azureedge.net/promptflow/latest/Flow.schema.json
+environment:
+  python_requirements_txt: requirements.txt
 inputs:
   text:
     type: string
@@ -23,7 +25,5 @@ nodes:
   inputs:
     connection: basic_custom_connection
     deployment_name: text-davinci-003
-    max_tokens: "120"
+    max_tokens: 120
     prompt: ${hello_prompt.output}
-environment:
-    python_requirements_txt: requirements.txt
