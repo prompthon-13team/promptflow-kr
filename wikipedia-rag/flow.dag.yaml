@@ -4,7 +4,7 @@ environment:
 inputs:
   question:
     type: string
-    default: 청소년 고객과 성인 고객의 모바일 일시정지 차이점 알려줘.
+    default: 홈 신규가입에 대해 설명해줘
 outputs:
   output:
     type: string
@@ -16,7 +16,7 @@ nodes:
     type: package
     tool: promptflow.tools.embedding.embedding
   inputs:
-    connection: AOAI_KOREA
+    connection: “AOAI API”
     deployment_name: text-embedding-ada-002
     input: ${inputs.question}
 - name: wikipedia_ai_search
@@ -25,11 +25,18 @@ nodes:
     type: package
     tool: promptflow_vectordb.tool.vector_db_lookup.VectorDBLookup.search
   inputs:
-    connection: azureblob-index-13team-test2
+    connection: mobile-sus
     index_name: mobile-sus-index
     text_field: ""
     vector_field: Vector
     vector: ${Embedding_Q.output}
+- name: processing_answer
+  type: python
+  source:
+    type: code
+    path: post_processing.py
+  inputs:
+    search_result: ${wikipedia_ai_search.output}
 - name: generate_answer_0
   type: llm
   source:
@@ -42,12 +49,5 @@ nodes:
     question: ${inputs.question}
     search_data: ${processing_answer.output}
     temperature: 0.3
-  connection: AOAI_KOREA
+  connection: “AOAI API”
   api: chat
-- name: processing_answer
-  type: python
-  source:
-    type: code
-    path: post_processing.py
-  inputs:
-    search_result: ${wikipedia_ai_search.output}

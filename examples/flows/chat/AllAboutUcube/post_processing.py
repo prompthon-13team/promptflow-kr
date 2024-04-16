@@ -1,6 +1,9 @@
 
 from promptflow import tool
+import numpy as np
 
+def cosine_similarity(a, b):
+    return np.dot(a, b) / (np.linalg.norm(a) * np.linalg.norm(b))
 
 # The inputs section will change based on the arguments of the tool function, after you save the code
 # Adding type to arguments and return value will help the system show the types properly
@@ -13,13 +16,11 @@ def my_python_tool(search_result: list):
     result_data = []
 
     for result in search_result:  
-        # if result['@search.score'] > 0.5:
+        
         result_answer = result['original_entity']
-        result_data.append({"meaning": result_answer['meaning'], "flow": result_answer['flow']})
-        # print(f"Title: {result['title']}")  
-        # print(f"Score: {result['@search.score']}")  
-        # print(f"Text:  {result['text']}")  
-        # print(f"id:    {result['id']}\n")  
+        print(result_answer['@search.score'])
+        if result_answer['@search.score'] > 0.85:
+            result_data.append({"meaning": result_answer['meaning'], "flow": result_answer['flow']})
 
     print(result_data)
 

@@ -8,7 +8,7 @@ inputs:
   question:
     type: string
     is_chat_input: true
-    default: What is ChatGPT?
+    default: ""
 outputs:
   answer:
     type: string
@@ -21,7 +21,7 @@ nodes:
     type: package
     tool: promptflow.tools.embedding.embedding
   inputs:
-    connection: AOAI_KOREA
+    connection: “AOAI API”
     deployment_name: text-embedding-ada-002
     input: ${inputs.question}
 - name: Ai_Search
@@ -30,7 +30,7 @@ nodes:
     type: package
     tool: promptflow_vectordb.tool.vector_db_lookup.VectorDBLookup.search
   inputs:
-    connection: azureblob-index-13team-test2
+    connection: mobile-sus
     index_name: mobile-sus-index
     vector_field: Vector
     vector: ${Embedding_Q.output}
@@ -53,5 +53,5 @@ nodes:
     response_format:
       type: text
     search_data: ${post_processing.output}
-  connection: AOAI_KOREA
+  connection: “AOAI API”
   api: chat
